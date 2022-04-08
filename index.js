@@ -144,21 +144,21 @@ const main = () => {
 
   let Wizard = new Hero("Wizard", 150);
 
-  Wizard.pick_weapon = "sword";
-  Wizard.drop_weapon = "polearm";
+  Wizard.pick_weapon("sword");
+  Wizard.drop_weapon("polearm");
   Wizard.swap_weapon;
 
   let Swordsman_1 = new Hero("Soldier", 100);
 
   let Swordsman_2 = new Hero("Soldier", 100);
 
-  Swordsman_1.pick_weapon = "sword";
-  Swordsman_1.pick_weapon = "polearm";
-  Swordsman_1.pick_weapon = "sword";
+  Swordsman_1.pick_weapon("sword");
+  Swordsman_1.pick_weapon("polearm");
+  Swordsman_1.pick_weapon("sword");
 
-  Swordsman_1.drop_weapon = "polearm";
+  Swordsman_1.drop_weapon("polearm");
   Swordsman_2.swap_weapon;
-  Swordsman_2.pick_weapon = weapons_stashed[0];
+  Swordsman_2.pick_weapon(weapons_stashed[0]);
 
   let Dragon = new Enemy("Dragon", 75);
   GiveDragonFire(Dragon);
