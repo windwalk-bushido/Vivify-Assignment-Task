@@ -1,10 +1,13 @@
+let data = "";
+
 function RandomNumber(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
 function SimulateBattle(hero, enemy) {
   function PrintBattleResult(winner, loser) {
-    console.log(winner + " has won the duel against " + loser);
+    data += "\n" + winner + " has won the duel against " + loser + "\n\n";
+    console.log("\n" + winner + " has won the duel against " + loser + "\n\n");
   }
 
   while (hero.health > 0 || enemy.health > 0) {
@@ -22,7 +25,8 @@ class Entity {
   }
 
   print_attack_result(victim, type_of_attack, damage) {
-    console.log(this.name + " attacked " + victim + " with " + type_of_attack + " - damage: " + damage);
+    data += "\n" + this.name + " attacked " + victim + " with " + type_of_attack + " - damage: " + damage;
+    console.log("\n" + this.name + " attacked " + victim + " with " + type_of_attack + " - damage: " + damage);
   }
 }
 
@@ -37,12 +41,9 @@ class Hero extends Entity {
         if (this.active_weapon === "sword") {
           enemy.health -= 10;
           this.print_attack_result(enemy.name, this.active_weapon, 10);
-        } else if (this.active_weapon === "polearm") {
+        } else {
           enemy.health -= 15;
           this.print_attack_result(enemy.name, this.active_weapon, 15);
-        } else {
-          enemy.health -= 5;
-          this.print_attack_result(enemy.name, this.active_weapon, 5);
         }
       };
     } else {
@@ -58,9 +59,7 @@ class Hero extends Entity {
       if (this.inventory.length === 0) {
         throw "There's no other weapon that " + this.name + " can equip";
       } else {
-        if (this.active_weapon !== "bare hands") {
-          this.inventory.push(this.active_weapon);
-        }
+        this.inventory.push(this.active_weapon);
         this.active_weapon = this.inventory[0];
         this.inventory.unshift(0);
       }
@@ -71,9 +70,13 @@ class Hero extends Entity {
 
   pick_weapon(weapon) {
     if (this.name === "Soldier") {
+      if (this.active_weapon.length === 0) {
+        this.active_weapon = weapon;
+      }
       if (this.inventory.length < 2) {
         this.inventory.push(weapon);
-        console.log(this.name + " put " + weapon + " in his inventory");
+        data += "\n" + this.name + " put " + weapon + " in his inventory";
+        console.log("\n" + this.name + " put " + weapon + " in his inventory");
       } else {
         throw "Inventory is full";
       }
@@ -85,16 +88,17 @@ class Hero extends Entity {
   drop_weapon(weapon) {
     if (this.name === "Soldier") {
       if (this.inventory[0] === weapon) {
-        this.inventory.unshift(0);
+        this.inventory.shift(0);
       } else {
-        this.inventory.unshift(1);
+        this.inventory.shift(1);
       }
       if (this.inventory.length != 0) {
         this.active_weapon = this.inventory[0];
       } else {
-        this.active_weapon = "bare hands";
+        this.active_weapon = "";
       }
-      console.log(this.name + " dropped " + weapon + " on the ground");
+      data += "\n" + this.name + " dropped " + weapon + " on the ground";
+      console.log("\n" + this.name + " dropped " + weapon + " on the ground");
     } else {
       throw "Wizards can't drop weapon because they don't have any";
     }
@@ -108,7 +112,7 @@ class Enemy extends Entity {
 
   strike(hero) {
     hero.health -= 5;
-    this.print_attack_result(hero.name, " normal strike", 5);
+    this.print_attack_result(hero.name, "normal strike", 5);
   }
 
   attack(hero) {
@@ -126,23 +130,23 @@ class Enemy extends Entity {
 function GiveDragonFire(dragon) {
   dragon.spit_fire = (hero) => {
     hero.health -= 20;
-    dragon.print_attack_result(hero.name, " fire spitting", 20);
+    dragon.print_attack_result(hero.name, "fire spitting", 20);
   };
 }
 
 function GiveSpiderFangs(spider) {
   spider.bite = (hero) => {
     hero.health -= 8;
-    spider.print_attack_result(hero.name, " fang bitting", 8);
+    spider.print_attack_result(hero.name, "fang bitting", 8);
   };
 }
 
 const main = () => {
   let Wizard = new Hero("Wizard", 150);
 
-  //Wizard.pick_weapon("sword"); <- Throws error
-  //Wizard.drop_weapon("polearm"); <- Throws error
-  //Wizard.swap_weapon; <- Throws error
+  //Wizard.pick_weapon("sword"); // <- Throws error
+  //Wizard.drop_weapon("polearm"); // <- Throws error
+  //Wizard.swap_weapon; // <- Throws error
 
   let Swordsman_1 = new Hero("Soldier", 100);
 
@@ -150,11 +154,12 @@ const main = () => {
 
   Swordsman_1.pick_weapon("sword");
   Swordsman_1.pick_weapon("polearm");
-  //Swordsman_1.pick_weapon("sword"); <- Throws error
+  //Swordsman_1.pick_weapon("sword"); // <- Throws error
 
+  //Swordsman_2.swap_weapon(); // <- Throws error
   Swordsman_1.drop_weapon("polearm");
-  Swordsman_2.swap_weapon;
   Swordsman_2.pick_weapon("polearm");
+  Swordsman_2.swap_weapon();
 
   let Dragon = new Enemy("Dragon", 75);
   GiveDragonFire(Dragon);
@@ -168,6 +173,11 @@ const main = () => {
   SimulateBattle(Wizard, Spider_1);
   SimulateBattle(Swordsman_1, Dragon);
   SimulateBattle(Swordsman_2, Spider_1);
+
+  const fs = require("fs");
+  fs.writeFile("game_log.txt", data, (err) => {
+    if (err) throw err;
+  });
 };
 
 main();
